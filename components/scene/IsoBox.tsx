@@ -16,6 +16,7 @@ export interface IsoBoxProps {
   topChildren?: React.ReactNode;
   glow?: boolean;
   glowColor?: string;
+  southClassName?: string;
 }
 
 /**
@@ -39,6 +40,7 @@ export function IsoBox({
   topChildren,
   glow = false,
   glowColor = "#ffffff",
+  southClassName,
 }: IsoBoxProps) {
   const W = w * TILE;
   const D = d * TILE;
@@ -80,7 +82,7 @@ export function IsoBox({
         }}
       />
       <div
-        className="absolute"
+        className={`absolute ${southClassName ?? ""}`}
         style={{
           width: W,
           height: h,

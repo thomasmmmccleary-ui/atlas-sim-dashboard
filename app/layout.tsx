@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://atlas-sim-dashboard.vercel.app"),
   title: "Atlas Sim Dashboard",
   description: "Watch Atlas at work in a live isometric sim dashboard.",
 };

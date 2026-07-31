@@ -12,8 +12,12 @@ export function MoodMeter({ name, value, accent }: MoodMeterProps) {
       </span>
       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200">
         <div
-          className="h-full rounded-full transition-[width] duration-700 ease-out"
-          style={{ width: `${Math.max(4, Math.min(100, value))}%`, background: accent }}
+          className="h-full rounded-full"
+          style={{
+            width: `${Math.max(4, Math.min(100, value))}%`,
+            backgroundColor: accent,
+            transition: "width 700ms ease-out, background-color 700ms ease-out",
+          }}
         />
       </div>
     </div>

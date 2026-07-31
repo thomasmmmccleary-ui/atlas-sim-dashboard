@@ -75,6 +75,16 @@ export function IsoRoom({ activity, label }: IsoRoomProps) {
             }}
           />
 
+          {/* slow ambient light drift, purely decorative */}
+          <div
+            className="atlas-ambient-light absolute rounded-md"
+            style={{
+              width: floorW,
+              height: floorD,
+              transform: "translateZ(0.1px)",
+            }}
+          />
+
           {/* back wall (north edge) */}
           <IsoBox
             gx={-0.06}
@@ -152,6 +162,9 @@ export function IsoRoom({ activity, label }: IsoRoomProps) {
             </div>
           </div>
         </div>
+
+        {/* soft vignette, sits above the tilted room in flat screen space */}
+        <div className="atlas-room-vignette absolute inset-0" />
       </div>
     </div>
   );

@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useNow } from "@/lib/useNow";
 
 export interface TopBarProps {
   source: "live" | "demo";
   updatedAt: string | null;
 }
 
-function formatRelative(iso: string): string {
-  const seconds = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+function formatRelative(ms: number): string {
+  const seconds = Math.max(0, Math.round(ms / 1000));
   if (seconds < 10) return "just now";
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.round(seconds / 60);
@@ -17,26 +17,17 @@ function formatRelative(iso: string): string {
   return `${hours}h ago`;
 }
 
-function useRelativeTime(iso: string | null): string {
-  const [text, setText] = useState("");
-
-  useEffect(() => {
-    const tick = () => setText(iso ? formatRelative(iso) : "");
-    // Defer the first tick to the next task so state is never set
-    // synchronously within the effect body itself.
-    const t0 = setTimeout(tick, 0);
-    const id = iso ? setInterval(tick, 5000) : undefined;
-    return () => {
-      clearTimeout(t0);
-      if (id) clearInterval(id);
-    };
-  }, [iso]);
-
-  return text;
-}
+const FRESH_MS = 90 * 1000;
 
 export function TopBar({ source, updatedAt }: TopBarProps) {
-  const relative = useRelativeTime(updatedAt);
+  const now = useNow(5000);
+
+  const ageMs = updatedAt && now ? now - new Date(updatedAt).getTime() : null;
+  const isLive = source === "live" && ageMs !== null;
+  const isFresh = isLive && ageMs! < FRESH_MS;
+
+  const dotClass = isFresh ? "bg-emerald-500" : "bg-amber-400";
+  const relative = ageMs !== null ? formatRelative(ageMs) : "";
 
   return (
     <header className="flex w-full items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
@@ -53,17 +44,14 @@ export function TopBar({ source, updatedAt }: TopBarProps) {
       </div>
 
       <div className="flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-md ring-1 ring-black/5 backdrop-blur">
-        <span
-          className={`inline-block h-2 w-2 rounded-full ${
-            source === "live" ? "bg-emerald-500" : "bg-amber-400"
-          } atlas-pulse-dot`}
-        />
-        {source === "live" ? (
+        <span className={`inline-block h-2 w-2 rounded-full ${dotClass} atlas-pulse-dot`} />
+        {isLive ? (
           <span>
-            Live{updatedAt ? <span className="text-slate-400"> · {relative}</span> : null}
+            {isFresh ? "Live" : "Live (slow)"}
+            <span className="text-slate-400"> · updated {relative}</span>
           </span>
         ) : (
-          <span>Idle loop demo</span>
+          <span>Demo / simulated activity</span>
         )}
       </div>
     </header>

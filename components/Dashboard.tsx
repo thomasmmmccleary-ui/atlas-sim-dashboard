@@ -5,6 +5,7 @@ import { useAtlasStatus } from "@/lib/useAtlasStatus";
 import { IsoRoom } from "./scene/IsoRoom";
 import { MoodMeter } from "./hud/MoodMeter";
 import { TopBar } from "./hud/TopBar";
+import { ActivityStrip } from "./hud/ActivityStrip";
 
 export function Dashboard() {
   const status = useAtlasStatus();
@@ -34,6 +35,8 @@ export function Dashboard() {
             {config.station === "couch" && "On the idle couch"}
           </div>
         </div>
+
+        <ActivityStrip history={status.history} />
       </main>
 
       <footer className="px-4 pb-4 text-center text-[11px] text-slate-400">

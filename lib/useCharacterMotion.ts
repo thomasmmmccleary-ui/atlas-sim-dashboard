@@ -12,11 +12,42 @@ export interface MotionState extends GridPoint {
   facingLeft: boolean;
 }
 
-const SPEED = 2.1; // grid units per second
+const MIN_DURATION_MS = 600;
+const MAX_DURATION_MS = 900;
+const MS_PER_GRID_UNIT = 90;
 
-function easeInOutQuad(t: number): number {
-  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function legDurationMs(dist: number): number {
+  return Math.min(MAX_DURATION_MS, MIN_DURATION_MS + dist * MS_PER_GRID_UNIT);
 }
+
+/** cubic-bezier(0.22, 1, 0.36, 1) — the walk-cycle's ease-out curve, matched
+ * numerically so the JS tween and any CSS using the same curve stay in sync. */
+function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
+  const A = (a1: number, a2: number) => 1 - 3 * a2 + 3 * a1;
+  const B = (a1: number, a2: number) => 3 * a2 - 6 * a1;
+  const C = (a1: number) => 3 * a1;
+
+  const calc = (t: number, a1: number, a2: number) =>
+    ((A(a1, a2) * t + B(a1, a2)) * t + C(a1)) * t;
+  const slope = (t: number, a1: number, a2: number) =>
+    3 * A(a1, a2) * t * t + 2 * B(a1, a2) * t + C(a1);
+
+  return function ease(x: number): number {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const dx = calc(t, p1x, p2x) - x;
+      if (Math.abs(dx) < 1e-6) break;
+      const d = slope(t, p1x, p2x);
+      if (Math.abs(d) < 1e-6) break;
+      t -= dx / d;
+    }
+    return calc(t, p1y, p2y);
+  };
+}
+
+const walkEase = cubicBezier(0.22, 1, 0.36, 1);
 
 function sameish(a: GridPoint, b: GridPoint): boolean {
   return Math.abs(a.x - b.x) < 0.01 && Math.abs(a.y - b.y) < 0.01;
@@ -24,8 +55,9 @@ function sameish(a: GridPoint, b: GridPoint): boolean {
 
 /**
  * Tweens the character between grid positions along a two-leg,
- * grid-aligned path (x-then-y), eased in/out, at a constant walking
- * speed — the "physics" behind the walk cycle.
+ * grid-aligned path (x-then-y). Each leg eases with cubic-bezier(0.22, 1,
+ * 0.36, 1) over a duration scaled to its distance (600-900ms) — the
+ * "physics" behind the walk cycle.
  */
 export function useCharacterMotion(target: GridPoint, initial: GridPoint): MotionState {
   const [state, setState] = useState<MotionState>({
@@ -105,9 +137,10 @@ export function useCharacterMotion(target: GridPoint, initial: GridPoint): Motio
         facingLeftRef.current = dy > 0;
       }
 
-      legProgressRef.current += (SPEED * dt) / legDist;
+      const durationMs = legDurationMs(legDist);
+      legProgressRef.current += (dt * 1000) / durationMs;
       const t = Math.min(1, legProgressRef.current);
-      const eased = easeInOutQuad(t);
+      const eased = walkEase(t);
       const x = start.x + dx * eased;
       const y = start.y + dy * eased;
       posRef.current = { x, y };
