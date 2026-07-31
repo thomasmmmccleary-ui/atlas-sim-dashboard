@@ -137,9 +137,9 @@ export function IsoRoom({ activity, label }: IsoRoomProps) {
               <div
                 className="absolute flex flex-col items-center"
                 style={{
-                  left: -44,
+                  left: -80,
                   top: -128,
-                  width: 88,
+                  width: 160,
                 }}
               >
                 <SpeechBubble label={label} icon={config.bubbleIcon} accent={config.accent} />
