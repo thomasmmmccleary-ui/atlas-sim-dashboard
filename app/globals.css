@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eef2fb;
+  --foreground: #1f2530;
 }
 
 @theme inline {
@@ -12,15 +12,189 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: radial-gradient(circle at 50% 0%, #f5f8ff 0%, #e3e9f7 60%, #d8e0f2 100%);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---- Atlas mascot animation ---- */
+
+.atlas-character {
+  position: relative;
+  transition: transform 0.25s ease;
+}
+
+.atlas-body-bob {
+  transform-origin: 50% 100%;
+  animation: atlas-idle-bob 2.6s ease-in-out infinite;
+}
+
+.atlas-walking .atlas-body-bob {
+  animation: atlas-walk-bob 0.42s ease-in-out infinite;
+}
+
+.atlas-idle .atlas-eye {
+  animation: atlas-blink 4.5s ease-in-out infinite;
+}
+
+.atlas-idle.atlas-idle .atlas-eye {
+  animation-duration: 3s;
+}
+
+.atlas-antenna-glow {
+  animation: atlas-antenna-pulse 2.2s ease-in-out infinite;
+  transform-origin: 60px 2px;
+}
+
+.atlas-deploying .atlas-antenna-glow {
+  animation-duration: 0.6s;
+}
+
+.atlas-building .atlas-arm-right,
+.atlas-building .atlas-arm-left {
+  animation: atlas-type-bounce 0.5s ease-in-out infinite;
+  transform-origin: 50% 0%;
+}
+.atlas-building .atlas-arm-left {
+  animation-delay: 0.25s;
+}
+
+.atlas-arm-raised {
+  animation: atlas-arm-raise 1.1s ease-in-out infinite;
+  transform-origin: 93px 66px;
+}
+
+.atlas-chatting .atlas-body-bob {
+  animation: atlas-chat-tilt 1.8s ease-in-out infinite;
+}
+
+.atlas-reviewing .atlas-body-bob {
+  animation: atlas-nod 2.2s ease-in-out infinite;
+}
+
+.atlas-walking .atlas-foot-left {
+  animation: atlas-step-left 0.42s ease-in-out infinite;
+  transform-origin: 42px 118px;
+}
+.atlas-walking .atlas-foot-right {
+  animation: atlas-step-right 0.42s ease-in-out infinite;
+  transform-origin: 78px 118px;
+}
+.atlas-walking .atlas-arm-left {
+  animation: atlas-step-right 0.42s ease-in-out infinite;
+  transform-origin: 27px 66px;
+}
+.atlas-walking .atlas-arm-right {
+  animation: atlas-step-left 0.42s ease-in-out infinite;
+  transform-origin: 93px 66px;
+}
+
+@keyframes atlas-idle-bob {
+  0%, 100% { transform: translateY(0) scaleY(1); }
+  50% { transform: translateY(-3px) scaleY(1.015); }
+}
+
+@keyframes atlas-walk-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes atlas-blink {
+  0%, 88%, 100% { ry: 9px; opacity: 1; }
+  92% { ry: 1px; opacity: 0.85; }
+}
+
+@keyframes atlas-antenna-pulse {
+  0%, 100% { opacity: 0.65; r: 5px; }
+  50% { opacity: 1; r: 6.5px; }
+}
+
+@keyframes atlas-type-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(-6deg); }
+}
+
+@keyframes atlas-arm-raise {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(-34deg); }
+}
+
+@keyframes atlas-chat-tilt {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes atlas-nod {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(2deg) translateY(1px); }
+}
+
+@keyframes atlas-step-left {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(-10deg); }
+}
+
+@keyframes atlas-step-right {
+  0%, 100% { transform: translateY(-5px) rotate(10deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+}
+
+/* ---- speech bubble ---- */
+
+.atlas-bubble {
+  margin-bottom: 6px;
+  animation: atlas-bubble-in 0.35s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.atlas-bubble-tail {
+  width: 10px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-6px) rotate(45deg);
+  border-radius: 2px;
+}
+
+@keyframes atlas-bubble-in {
+  0% { opacity: 0; transform: translateY(6px) scale(0.92); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- HUD ---- */
+
+.atlas-pulse-dot {
+  box-shadow: 0 0 0 0 currentColor;
+  animation: atlas-pulse 2s ease-in-out infinite;
+}
+
+@keyframes atlas-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-body-bob,
+  .atlas-antenna-glow,
+  .atlas-arm-raised,
+  .atlas-building .atlas-arm-right,
+  .atlas-building .atlas-arm-left,
+  .atlas-chatting .atlas-body-bob,
+  .atlas-reviewing .atlas-body-bob,
+  .atlas-walking .atlas-foot-left,
+  .atlas-walking .atlas-foot-right,
+  .atlas-walking .atlas-arm-left,
+  .atlas-walking .atlas-arm-right,
+  .atlas-idle .atlas-eye,
+  .atlas-pulse-dot,
+  .atlas-bubble {
+    animation: none !important;
+  }
+  .atlas-character {
+    transition: none !important;
+  }
 }
